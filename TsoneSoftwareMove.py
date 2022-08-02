@@ -6,24 +6,19 @@ import pyautogui
 
 '''地址address包含文件名name和路径path'''
 
-sourcefile_path = 'C:/Users/24856/Desktop/test'  # 后面要变成选择文件夹
-target_path = 'H:/test2'  # 后面要变成选择文件夹  \转译 \\意思就是\
+sourcefile_path = ''  # 后面要变成选择文件夹
+target_path = ''  # 后面要变成选择文件夹  \转译 \\意思就是\
 check_key = 1  # 检查要用
 windowName = 'TsoneSoftwareMove'
 choice = 1
-filenameList = []  # 不管单个多个都读在列表里，最后一起搬
+OldAddressList = []  # 不管单个多个都读在列表里，最后一起搬。单个的直接存进去，多个的最后开始的时候读
+pathList = []
+frame_count1 = 0
+frame_count2 = 0
 
 
 def check():
-    global check_key
-    if sourcefile_path == '':
-        print('源路径不能为空')
-        check_key = 0
-    if target_path == '':
-        print('目标路径不能为空')
-        check_key = 0
-    else:
-        print('检查无误')
+    pass
 
 
 #  @ 功能：拿到文件夹列表
@@ -37,55 +32,35 @@ def getDirList(p):  # 其实这个还没看太懂
     if p[-1] != "\\":
         p = p + "\\"
     a = os.listdir(p)  # 找到p下的文件列表
-    print('return a', a)
     return a
 
 
-def add_filename_list():
-    global filenameList
-    if check_key == 1:
-        if choice == 1:  # choice是字符串形式
-            single_move()
-        if choice == 2:
-            filenameList.append(getDirList(sourcefile_path))
+def add_singleAddress_list(i):
+    global OldAddressList
+    if len(OldAddressList) != 0 and len(OldAddressList) >= i:  # 如果对应的位置存在
+        OldAddressList[i] = sourcefile_path
+    else:  # 如果对应位置没内容
+        OldAddressList.append(sourcefile_path)  # 在后面加上
 
 
-def list_move():  # 将文件夹中的所有内容移动到目标文件夹
-    global sourcefile_path, target_path
-    filenameList = getDirList.(sourcefile_path)  # 找到文件地址，这里filename是个列表
-
-    for filename in filenameList:
-        OldAddress = os.path.join(sourcefile_path, filename)
-        print('old address is ', OldAddress)
-        NewAddress = os.path.join(target_path, filename)
-        print('new address is ', NewAddress)
-        shutil.move(OldAddress, NewAddress)
-        print('移动完成')
-
-
-def single_move():
-    global sourcefile_path, target_path
-    OldAddress = sourcefile_path  # 因为要共用一个选项框，这里选择的时候会直接选到具体文件
-    print('old address is ', OldAddress)
-    if OldAddress.count('/') != 0:
-        filename = OldAddress.split('/')[-1]
-    elif OldAddress.count('/') != 0:
-        filename = OldAddress.split('/')[-1]
+def add_pathList(i):
+    global pathList
+    if len(pathList) != 0 and len(pathList) >= i:
+        pathList[i] = sourcefile_path
     else:
-        return 0
-    NewAddress = os.path.join(target_path, filename)
-    print('new address is ', NewAddress)
-    shutil.move(OldAddress, NewAddress)
-    print('移动完成')
+        pathList.append(sourcefile_path)
 
 
 def workbegin():
-    global check_key, choice
-    check()
+    global pathList, OldAddressList
+    for path in pathList:  # 遍历路径表
+        filenameList = getDirList(path)  # 找到路径下的文件名列表
+        for filename in filenameList:
+            OldAddressList.append(os.path.join(path, filename))  # 将文件名加路径得到地址加入到地址列表
+    for OldAddress in OldAddressList:
+        shutil.move(OldAddress, target_path)
+    print('搬完啦')
 
-
-# def multi_move():  # 复选文件进行移动，可以弄个+号，点一次加一个文件，到有交互之后实现
-#     global sourcefile_path, target_path
 
 # 以下函数为窗口功能
 def tobedeveloped():
@@ -93,22 +68,21 @@ def tobedeveloped():
 
 
 def singleFW():  # single file window
-    global sourcefile_path, choice
-    choice = 1
+    global frame_count1, sourcefile_path
+    i = frame_count1
+    print(i)
+    frame_count1 += 1
     btn_1.configure(bg='lightgray')
     btn_2.configure(bg='orange')
-
     Frame_singleFW = tk.Frame(Frame_middle1, width=700, height=49, padx=1, pady=1, bd=1)
     Frame_singleFW.pack()  # 分区放在
 
     def findpath1():
-        print('find path1')
         global sourcefile_path
-        sourcefile_path = filedialog.askopenfilename()
-        print(sourcefile_path)
-        txt1.delete(1.0, "end")
-        txt1.insert("end", sourcefile_path)
-
+        sourcefile_path = filedialog.askopenfilename()  # 选择了文件地址
+        add_singleAddress_list(i)  # 这里读了上面刚改过的地址
+        txt1.delete(1.0, "end")  # 删除旧的
+        txt1.insert("end", sourcefile_path)  # 显示新的
     lbl1 = Label(Frame_singleFW, text="单个文件")  # 标签1 放在frm_package 中
     lbl1.place(x=5, y=4, width=120)
     # 源文件的格式不同所以单独列，目标地址都是文件夹，放在下面一起写了
@@ -120,18 +94,18 @@ def singleFW():  # single file window
 
 
 def multiFW():  # multiple file window
-    global sourcefile_path, choice
-    choice = 2
+    global frame_count2, sourcefile_path
+    i = frame_count2
+    frame_count2 += 1
     btn_1.configure(bg='orange')
     btn_2.configure(bg='lightgray')
-
     Frame_multiFW = tk.Frame(Frame_middle1, width=900, height=49, padx=1, pady=1, bd=1)
     Frame_multiFW.pack()  # 分区放在
 
     def findpath2():
-        print('find path2')
         global sourcefile_path
-        sourcefile_path = filedialog.askdirectory()
+        sourcefile_path = filedialog.askdirectory()  # 选择了文件地址
+        add_pathList(i)  # 这里读了上面刚改过的地址
         txt2.delete(1.0, "end")
         txt2.insert("end", sourcefile_path)
     lbl2 = Label(Frame_multiFW, text="文件夹内所有文件")  # 标签1 放在frm_package 中
@@ -144,10 +118,8 @@ def multiFW():  # multiple file window
 
 
 def target_address_get():
-    print('find target path')
     global target_path
     target_path = filedialog.askdirectory()
-    print(target_path)
     txt_1.delete(1.0, "end")
     txt_1.insert("end", target_path)
 
@@ -157,8 +129,6 @@ def renew():
         pass
     else:
         pass
-
-    pass
 
 
 if __name__ == '__main__':
