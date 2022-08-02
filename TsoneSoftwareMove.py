@@ -10,6 +10,8 @@ sourcefile_path = 'C:/Users/24856/Desktop/test'  # 后面要变成选择文件�
 target_path = 'H:/test2'  # 后面要变成选择文件夹  \转译 \\意思就是\
 check_key = 1  # 检查要用
 windowName = 'TsoneSoftwareMove'
+choice = 1
+filenameList = []  # 不管单个多个都读在列表里，最后一起搬
 
 
 def check():
@@ -20,6 +22,8 @@ def check():
     if target_path == '':
         print('目标路径不能为空')
         check_key = 0
+    else:
+        print('检查无误')
 
 
 #  @ 功能：拿到文件夹列表
@@ -37,10 +41,19 @@ def getDirList(p):  # 其实这个还没看太懂
     return a
 
 
+def add_filename_list():
+    global filenameList
+    if check_key == 1:
+        if choice == 1:  # choice是字符串形式
+            single_move()
+        if choice == 2:
+            filenameList.append(getDirList(sourcefile_path))
+
+
 def list_move():  # 将文件夹中的所有内容移动到目标文件夹
     global sourcefile_path, target_path
-    filenameList = getDirList(sourcefile_path)  # 找到文件地址，这里filename是个列表
-    print('get the filename_list', filenameList)
+    filenameList = getDirList.(sourcefile_path)  # 找到文件地址，这里filename是个列表
+
     for filename in filenameList:
         OldAddress = os.path.join(sourcefile_path, filename)
         print('old address is ', OldAddress)
@@ -67,14 +80,8 @@ def single_move():
 
 
 def workbegin():
-    global check_key
+    global check_key, choice
     check()
-    if check_key == 1:
-        choice = input('选择执行方式：1、单个文件转移 2、选择文件夹中列表转移\n')
-        if choice == '1':  # choice是字符串形式
-            single_move()
-        if choice == '2':
-            list_move()
 
 
 # def multi_move():  # 复选文件进行移动，可以弄个+号，点一次加一个文件，到有交互之后实现
@@ -86,43 +93,71 @@ def tobedeveloped():
 
 
 def singleFW():  # single file window
-    global check_key, sourcefile_path
-    check_key = 1
+    global sourcefile_path, choice
+    choice = 1
+    btn_1.configure(bg='lightgray')
+    btn_2.configure(bg='orange')
+
+    Frame_singleFW = tk.Frame(Frame_middle1, width=700, height=49, padx=1, pady=1, bd=1)
+    Frame_singleFW.pack()  # 分区放在
 
     def findpath1():
+        print('find path1')
         global sourcefile_path
         sourcefile_path = filedialog.askopenfilename()
+        print(sourcefile_path)
         txt1.delete(1.0, "end")
         txt1.insert("end", sourcefile_path)
-    btn1 = Button(Frame_middle1, text="打开文件位置", command=findpath1)
-    btn1.place(x=550, y=70, width=120)
-    lbl1 = Label(Frame_middle1, text="把单个文件")  # 标签1 放在frm_package 中
-    lbl1.place(x=50, y=30, width=120)
+
+    lbl1 = Label(Frame_singleFW, text="单个文件")  # 标签1 放在frm_package 中
+    lbl1.place(x=5, y=4, width=120)
     # 源文件的格式不同所以单独列，目标地址都是文件夹，放在下面一起写了
-    txt1 = tk.Text(Frame_middle1, relief="solid")  # 创建文本框
-    txt1.place(x=120, y=70, width=400, height=40)  # 放置
+    txt1 = tk.Text(Frame_singleFW, relief="solid")  # 创建文本框
+    txt1.place(x=120, y=4, width=400, height=40)  # 放置
     txt1.insert("end", sourcefile_path)
+    btn1 = Button(Frame_singleFW, text="打开文件位置", command=findpath1)
+    btn1.place(x=550, y=4, width=120)
 
 
 def multiFW():  # multiple file window
-    global check_key, sourcefile_path
-    check_key = 2
+    global sourcefile_path, choice
+    choice = 2
+    btn_1.configure(bg='orange')
+    btn_2.configure(bg='lightgray')
+
+    Frame_multiFW = tk.Frame(Frame_middle1, width=900, height=49, padx=1, pady=1, bd=1)
+    Frame_multiFW.pack()  # 分区放在
 
     def findpath2():
+        print('find path2')
         global sourcefile_path
-        sourcefile_path = filedialog.askopenfilename()
+        sourcefile_path = filedialog.askdirectory()
         txt2.delete(1.0, "end")
         txt2.insert("end", sourcefile_path)
-    btn2 = Button(Frame_middle1, text="打开文件位置", command=findpath2)
-    btn2.place(x=550, y=70, width=120)
-    lbl2 = Label(Frame_middle1, text="将所有文件从")  # 标签1 放在frm_package 中
-    lbl2.place(x=50, y=30, width=120)
-    txt2 = tk.Text(Frame_middle1, relief="solid")  # 创建文本框
-    txt2.place(x=120, y=70, width=400, height=40)  # 放置
+    lbl2 = Label(Frame_multiFW, text="文件夹内所有文件")  # 标签1 放在frm_package 中
+    lbl2.place(x=104, y=4)
+    txt2 = tk.Text(Frame_multiFW, relief="solid")  # 创建文本框
+    txt2.place(x=300, y=4, width=400, height=40)  # 放置
     txt2.insert("end", sourcefile_path)
+    btn2 = Button(Frame_multiFW, text="打开文件位置", command=findpath2)
+    btn2.place(x=750, y=4, width=120)
+
+
+def target_address_get():
+    print('find target path')
+    global target_path
+    target_path = filedialog.askdirectory()
+    print(target_path)
+    txt_1.delete(1.0, "end")
+    txt_1.insert("end", target_path)
 
 
 def renew():
+    if choice == 1:
+        pass
+    else:
+        pass
+
     pass
 
 
@@ -130,7 +165,7 @@ if __name__ == '__main__':
     window = tk.Tk()
     window.title(windowName)
     # window.iconphoto()  # 图标
-    window.geometry("700x500+200+200")
+    window.geometry("1400x700+200+200")
 
     # -----------设置菜单栏-------------
     menu = tk.Menu(window)
@@ -154,34 +189,28 @@ if __name__ == '__main__':
     # ---------------------------------
 
     # ------------上方分区内容-------------
-    btn_1 = Button(Frame_top, text="单个文件", bg="orange",
+    btn_1 = Button(Frame_top, text="加选单个文件", bg="orange",
                    command=singleFW)  # 按钮
     btn_1.place(x=0, y=0, width=350)
-
-    btn_2 = Button(Frame_top, text="多个文件", bg="orange",
+    btn_2 = Button(Frame_top, text="加选多个文件", bg="orange",
                    command=multiFW)  # 按钮
     btn_2.place(x=350, y=0, width=350)
     # ---------------------------------
 
     # -------------中间分区------------
-    Frame_middle1 = tk.Frame(window, width=700, height=210, padx=1, pady=1, bd=1)
+    Frame_middle1 = tk.Frame(window, width=700, height=0, padx=1, pady=1, bd=1, bg='lightgray')
     Frame_middle1.pack()  # 分区放在
-    Frame_middle2 = tk.Frame(window, width=700, height=210, padx=1, pady=1, bd=1)
+    Frame_middle2 = tk.Frame(window, width=700, height=100, padx=1, pady=1, bd=1)
     Frame_middle2.pack()  # 分区放在
     # ---------------------------------
 
     # ------------中下分区内容-------------
-    def target_address_get():
-        global target_path
-        target_path = filedialog.askdirectory()
-        txt_1.delete(1.0, "end")
-        txt_1.insert("end", target_path)
     btn_3 = Button(Frame_middle2, text="目标路径选择", command=target_address_get)
-    btn_3.place(x=550, y=80, width=120)
+    btn_3.place(x=550, y=10, width=120)
     lbl_1 = Label(Frame_middle2, text="移动到")  # 标签1 放在frm_package 中
-    lbl_1.place(x=50, y=83, height=35)
+    lbl_1.place(x=50, y=13, height=35)
     txt_1 = tk.Text(Frame_middle2, relief="solid")  # 创建文本框
-    txt_1.place(x=120, y=80, width=400, height=40)  # 放置
+    txt_1.place(x=120, y=10, width=400, height=40)  # 放置
     txt_1.insert("end", target_path)
     # ---------------------------------
 
@@ -191,7 +220,7 @@ if __name__ == '__main__':
     # ---------------------------------
 
     # ------------下方分区内容-------------
-    btn_4 = Button(Frame_bottom, text="开始搬砖", bg="orange",
+    btn_4 = Button(Frame_bottom, text="开始搬砖", bg="lightgreen",
                    command=workbegin)  # 按钮
     btn_4.place(x=350, y=20, anchor='center', width=240)
     # ---------------------------------
